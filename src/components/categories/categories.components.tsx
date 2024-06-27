@@ -7,8 +7,7 @@ import CategoryItem from './category-item/category-item.component'
 // Utilities
 import Category from '../../types/categories.types'
 
-// Styles
-import './categories.styles.css'
+
 import { CategoriesContainer, CategoriesContent } from './categories.styles'
 
 const Categories = () => {
