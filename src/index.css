@@ -1,17 +1,17 @@
-*{
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
-
 }
 
-#root{
+#root {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-html,bodu{
+html,
+body {
   height: 100%;
 }
