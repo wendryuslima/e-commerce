@@ -1,8 +1,11 @@
+import Product from "./products.types"
+
 interface Category {
   id: string
   name: string
   displayName: string
-  imageURL: string
+  imageUrl: string
+  products: Product[]
 }
 
 export default Category
