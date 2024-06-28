@@ -1,5 +1,5 @@
-import {BsGoogle} from 'react-icons/bs'
-import {FiLogIn} from 'react-icons/fi'
+import { BsGoogle } from 'react-icons/bs'
+import { FiLogIn } from 'react-icons/fi'
 import CustomButtom from '../../components/custom-button/custom-button.component'
 import Header from '../../components/header/header.components'
 
@@ -10,6 +10,7 @@ import {
   LoginInputConteiner,
   LoginSubtitle
 } from './login.style'
+import CustomInput from '../../components/custom-input/custom-input.component'
 
 const LoginPage = () => {
   return (
@@ -19,14 +20,23 @@ const LoginPage = () => {
         <LoginContent>
           <LoginHeadline>Entre com a sua conta</LoginHeadline>
 
-          <CustomButtom startIcon={<BsGoogle size={18}/>}>Entrar com o google</CustomButtom >
+          <CustomButtom startIcon={<BsGoogle size={18} />}>
+            Entrar com o google
+          </CustomButtom>
 
           <LoginSubtitle>Ou entre com seu e-mail</LoginSubtitle>
 
-          <LoginInputConteiner>{/* {emailInput} */}</LoginInputConteiner>
-          <LoginInputConteiner>{/* {password input} */}</LoginInputConteiner>
+          <LoginInputConteiner>
+            <CustomInput type='e-mail' placeholder='Digite seu email' />
+          </LoginInputConteiner>
 
-          <CustomButtom startIcon={<FiLogIn size={18}></FiLogIn>}>Entrar</CustomButtom>
+          <LoginInputConteiner>
+            <CustomInput type='password' placeholder='Digite sua senha' />
+          </LoginInputConteiner>
+
+          <CustomButtom startIcon={<FiLogIn size={18}></FiLogIn>}>
+            Entrar
+          </CustomButtom>
         </LoginContent>
       </LoginContainer>
     </>
