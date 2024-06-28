@@ -3,6 +3,7 @@ import { FiLogIn } from 'react-icons/fi'
 import CustomButtom from '../../components/custom-button/custom-button.component'
 import Header from '../../components/header/header.components'
 import { useForm } from 'react-hook-form'
+import validator from 'validator'
 
 import {
   LoginContainer,
@@ -12,6 +13,7 @@ import {
   LoginSubtitle
 } from './login.style'
 import CustomInput from '../../components/custom-input/custom-input.component'
+import { InputErrorMessageContainer } from '../../components/input-error-message/input-error-message.style'
 
 const LoginPage = () => {
   const {
@@ -41,8 +43,25 @@ const LoginPage = () => {
             <CustomInput
               hasError={!!errors?.email}
               placeholder='Digite seu email'
-              {...register('email', { required: true })}
+              {...register('email', {
+                required: true,
+                validate: (value) => {
+                  return validator.isEmail(value)
+                }
+              })}
             />
+
+            {errors?.email?.type === 'required' && (
+              <InputErrorMessageContainer>
+                O email é obrigatório
+              </InputErrorMessageContainer>
+            )}
+
+            {errors?.email?.type === 'validate' && (
+              <InputErrorMessageContainer>
+                Insira um email válido
+              </InputErrorMessageContainer>
+            )}
           </LoginInputConteiner>
 
           <LoginInputConteiner>
@@ -52,6 +71,12 @@ const LoginPage = () => {
               placeholder='Digite sua password'
               {...register('password', { required: true })}
             />
+
+            {errors?.password?.type === 'required' && (
+              <InputErrorMessageContainer>
+                A senha é obrigatória.
+              </InputErrorMessageContainer>
+            )}
           </LoginInputConteiner>
 
           <CustomButtom
