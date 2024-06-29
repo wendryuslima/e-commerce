@@ -43,12 +43,12 @@ const LoginPage = () => {
             <CustomInput
               hasError={!!errors?.email}
               placeholder='Digite seu email'
-              {...register('email', {
-                required: true,
-                validate: (value) => {
-                  return validator.isEmail(value)
-                }
-              })}
+                {...register('email', {
+                  required: true,
+                  validate: (value) => {
+                    return validator.isEmail(value)
+                  }
+                })}
             />
 
             {errors?.email?.type === 'required' && (
@@ -57,16 +57,13 @@ const LoginPage = () => {
               </InputErrorMessageContainer>
             )}
 
-            {errors?.email?.type === 'validate' && (
-              <InputErrorMessageContainer>
-                Insira um email válido
-              </InputErrorMessageContainer>
-            )}
+           
           </LoginInputConteiner>
 
           <LoginInputConteiner>
             <p>Senha</p>
             <CustomInput
+              type='password'
               hasError={!!errors?.password}
               placeholder='Digite sua password'
               {...register('password', { required: true })}

@@ -5,6 +5,7 @@ import HomePage from './pages/home/home.page'
 import LoginPage from './pages/login/login.page'
 import Explore from './pages/explore/explore.page'
 import ReturnPage from './pages/return/return.page'
+import SignUp from './pages/sign-up/sign-up.page'
 
 const App: FunctionComponent = () => {
   return (
@@ -14,6 +15,7 @@ const App: FunctionComponent = () => {
         <Route path='/login' element={<LoginPage />} />
         <Route path='/explore' element={<Explore />} />
         <Route path='/return' element={<ReturnPage />} />
+        <Route path='/sign' element={<SignUp />} />
       </Routes>
     </BrowserRouter>
   )

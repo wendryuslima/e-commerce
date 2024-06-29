@@ -7,7 +7,6 @@ import {
   HeaderTitle
 } from './header.styles'
 
-
 const Header = () => {
   const navigate = useNavigate()
 
@@ -17,6 +16,10 @@ const Header = () => {
 
   const handleLoginClick = () => {
     navigate('/login')
+  }
+
+  const signUp = () => {
+    navigate('/sign')
   }
 
   const returnClick = () => {
@@ -29,7 +32,7 @@ const Header = () => {
       <HeaderItems>
         <HeaderItem onClick={exploreClick}>Explorar</HeaderItem>
         <HeaderItem onClick={handleLoginClick}>Login</HeaderItem>
-        <HeaderItem>Criar Conta</HeaderItem>
+        <HeaderItem onClick={signUp}>Criar Conta</HeaderItem>
         <HeaderItem>
           {' '}
           <BsCart3 size={25} />
