@@ -1,29 +1,63 @@
-import CustomButtom from '../../components/custom-button/custom-button.component'
+import { FiLogIn } from 'react-icons/fi'
+import { useForm } from 'react-hook-form'
+import validator from 'validator'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { addDoc, collection } from 'firebase/firestore'
+
+// Components
+import CustomButton from '../../components/custom-button/custom-button.component'
 import CustomInput from '../../components/custom-input/custom-input.component'
 import Header from '../../components/header/header.components'
-import { useForm } from 'react-hook-form'
+import InputErrorMessage from '../../components/input-error-message/input-error-message.component'
+
+// Styles
 import {
   SignUpContainer,
   SignUpContent,
   SignUpHeadline,
   SignUpInputContainer
 } from './sign-up.style'
-import { FiLogIn } from 'react-icons/fi'
-import { InputErrorMessageContainer } from '../../components/input-error-message/input-error-message.style'
 
-const SignUp = () => {
+// Utilities
+import { auth, db } from '../../config/firebase.config'
+
+interface SignUpForm {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  passwordConfirmation: string
+}
+
+const SignUpPage = () => {
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors }
-  } = useForm()
+  } = useForm<SignUpForm>()
 
-  const handleSubmitPress = (data: any) => {
-    console.log({ data })
+  const watchPassword = watch('password')
+
+  const handleSubmitPress = async (data: SignUpForm) => {
+    try {
+      const userCredencials = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      )
+
+      await addDoc(collection(db, 'users'), {
+        id: userCredencials.user.uid,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: userCredencials.user.email
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
-  const wacthPassword = watch('password')
   return (
     <>
       <Header />
@@ -35,17 +69,13 @@ const SignUp = () => {
           <SignUpInputContainer>
             <p>Nome</p>
             <CustomInput
-              hasError={!!errors?.name}
-              {...register('name', {
-                required: true
-              })}
+              hasError={!!errors?.firstName}
               placeholder='Digite seu nome'
-            ></CustomInput>
+              {...register('firstName', { required: true })}
+            />
 
-            {errors?.name?.type === 'required' && (
-              <InputErrorMessageContainer>
-                Digite seu nome
-              </InputErrorMessageContainer>
+            {errors?.firstName?.type === 'required' && (
+              <InputErrorMessage>O nome é obrigatório.</InputErrorMessage>
             )}
           </SignUpInputContainer>
 
@@ -53,85 +83,90 @@ const SignUp = () => {
             <p>Sobrenome</p>
             <CustomInput
               hasError={!!errors?.lastName}
-              {...register('lastName', { required: true })}
               placeholder='Digite seu sobrenome'
-            ></CustomInput>
+              {...register('lastName', { required: true })}
+            />
 
             {errors?.lastName?.type === 'required' && (
-              <InputErrorMessageContainer>
-                Digite seu sobrenome
-              </InputErrorMessageContainer>
+              <InputErrorMessage>O sobrenome é obrigatório.</InputErrorMessage>
             )}
           </SignUpInputContainer>
 
           <SignUpInputContainer>
-            <p>Email</p>
+            <p>E-mail</p>
             <CustomInput
               hasError={!!errors?.email}
-              {...register('email', { required: true })}
-              placeholder='Digite seu email'
-            ></CustomInput>
+              placeholder='Digite seu e-mail'
+              {...register('email', {
+                required: true,
+                validate: (value) => {
+                  return validator.isEmail(value)
+                }
+              })}
+            />
 
             {errors?.email?.type === 'required' && (
-              <InputErrorMessageContainer>
-                Digite seu email
-              </InputErrorMessageContainer>
+              <InputErrorMessage>O e-mail é obrigatório.</InputErrorMessage>
+            )}
+
+            {errors?.email?.type === 'validate' && (
+              <InputErrorMessage>
+                Por favor, insira um e-mail válido.
+              </InputErrorMessage>
             )}
           </SignUpInputContainer>
 
           <SignUpInputContainer>
             <p>Senha</p>
             <CustomInput
-              hasError={!!errors.password}
-              {...register('password', { required: true })}
-              type='password'
+              hasError={!!errors?.password}
               placeholder='Digite sua senha'
-            ></CustomInput>
+              type='password'
+              {...register('password', { required: true })}
+            />
 
             {errors?.password?.type === 'required' && (
-              <InputErrorMessageContainer>
-                Digite sua senha
-              </InputErrorMessageContainer>
+              <InputErrorMessage>A senha é obrigatória.</InputErrorMessage>
             )}
           </SignUpInputContainer>
 
           <SignUpInputContainer>
-            <p>Confirme a senha</p>
+            <p>Confirmação de Senha</p>
             <CustomInput
-              hasError={!!errors.passwordConfirmed}
-              {...register('passwordConfirmed', {
+              hasError={!!errors?.passwordConfirmation}
+              placeholder='Digite novamente sua senha'
+              type='password'
+              {...register('passwordConfirmation', {
                 required: true,
                 validate: (value) => {
-                  return value === wacthPassword
+                  return value === watchPassword
                 }
               })}
-              type='password'
-              placeholder='Confirme sua senha'
-            ></CustomInput>
+            />
 
-            {errors?.passwordConfirmed?.type === 'required' && (
-              <InputErrorMessageContainer>
-                Confirme sua senha
-              </InputErrorMessageContainer>
+            {errors?.passwordConfirmation?.type === 'required' && (
+              <InputErrorMessage>
+                A confirmação de senha é obrigatória.
+              </InputErrorMessage>
             )}
 
-            {errors?.passwordConfirmed?.type === 'validate' && (
-              <InputErrorMessageContainer>
-                As senhas não coincidem
-              </InputErrorMessageContainer>
+            {errors?.passwordConfirmation?.type === 'validate' && (
+              <InputErrorMessage>
+                A confirmação de senha precisa ser igual a senha.
+              </InputErrorMessage>
             )}
           </SignUpInputContainer>
 
-          <CustomButtom
+          <CustomButton
             onClick={() => handleSubmit(handleSubmitPress)()}
             startIcon={<FiLogIn size={18} />}
           >
-            Criar conta
-          </CustomButtom>
+            Criar Conta
+          </CustomButton>
         </SignUpContent>
       </SignUpContainer>
     </>
   )
 }
 
-export default SignUp
+export default SignUpPage
