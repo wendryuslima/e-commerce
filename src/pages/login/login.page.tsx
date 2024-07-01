@@ -1,10 +1,16 @@
 import { BsGoogle } from 'react-icons/bs'
 import { FiLogIn } from 'react-icons/fi'
-import CustomButtom from '../../components/custom-button/custom-button.component'
-import Header from '../../components/header/header.components'
 import { useForm } from 'react-hook-form'
 import validator from 'validator'
 
+// Components
+import CustomButton from '../../components/custom-button/custom-button.component'
+import CustomInput from '../../components/custom-input/custom-input.component'
+
+import InputErrorMessage from '../../components/input-error-message/input-error-message.component'
+import { auth } from '../../config/firebase.config'
+
+// Styles
 import {
   LoginContainer,
   LoginContent,
@@ -12,76 +18,114 @@ import {
   LoginInputConteiner,
   LoginSubtitle
 } from './login.style'
-import CustomInput from '../../components/custom-input/custom-input.component'
-import { InputErrorMessageContainer } from '../../components/input-error-message/input-error-message.style'
+import Header from '../../components/header/header.components'
+import {
+  AuthError,
+  AuthErrorCodes,
+  signInWithEmailAndPassword
+} from 'firebase/auth'
+import { error } from 'console'
+
+interface LoginForm {
+  email: string
+  password: string
+}
 
 const LoginPage = () => {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors }
-  } = useForm()
+  } = useForm<LoginForm>()
 
-  const handleSubmitPress = (data: any) => {
-    console.log({ data })
+  const handleSubmitPress = async (data: LoginForm) => {
+    try {
+      const userCredentials = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      )
+
+      console.log({ userCredentials })
+    } catch (error) {
+      const _error = error as AuthError
+
+      if (_error.code === AuthErrorCodes.INVALID_PASSWORD) {
+        return setError('password', { type: 'invalid' })
+      }
+
+      if (_error.code === AuthErrorCodes.USER_DELETED) {
+        return setError('email', { type: 'notFound' })
+      }
+    }
   }
+
   return (
     <>
       <Header />
+
       <LoginContainer>
         <LoginContent>
           <LoginHeadline>Entre com a sua conta</LoginHeadline>
 
-          <CustomButtom startIcon={<BsGoogle size={18} />}>
-            Entrar com o google
-          </CustomButtom>
+          <CustomButton startIcon={<BsGoogle size={18} />}>
+            Entrar com o Google
+          </CustomButton>
 
-          <LoginSubtitle>Ou entre com seu e-mail</LoginSubtitle>
+          <LoginSubtitle>ou entre com o seu e-mail</LoginSubtitle>
 
           <LoginInputConteiner>
             <p>E-mail</p>
             <CustomInput
               hasError={!!errors?.email}
-              placeholder='Digite seu email'
-                {...register('email', {
-                  required: true,
-                  validate: (value) => {
-                    return validator.isEmail(value)
-                  }
-                })}
+              placeholder='Digite seu e-mail'
+              {...register('email', {
+                required: true,
+                validate: (value) => {
+                  return validator.isEmail(value)
+                }
+              })}
             />
 
             {errors?.email?.type === 'required' && (
-              <InputErrorMessageContainer>
-                O email é obrigatório
-              </InputErrorMessageContainer>
+              <InputErrorMessage>O e-mail é obrigatório.</InputErrorMessage>
+            )}
+            {errors?.email?.type === 'notFound' && (
+              <InputErrorMessage>O e-mail não foi encontrado.</InputErrorMessage>
             )}
 
-           
+            {errors?.email?.type === 'validate' && (
+              <InputErrorMessage>
+                Por favor, insira um e-mail válido.
+              </InputErrorMessage>
+            )}
           </LoginInputConteiner>
 
           <LoginInputConteiner>
             <p>Senha</p>
             <CustomInput
-              type='password'
               hasError={!!errors?.password}
-              placeholder='Digite sua password'
+              placeholder='Digite sua senha'
+              type='password'
               {...register('password', { required: true })}
             />
 
             {errors?.password?.type === 'required' && (
-              <InputErrorMessageContainer>
-                A senha é obrigatória.
-              </InputErrorMessageContainer>
+              <InputErrorMessage>A senha é obrigatória.</InputErrorMessage>
+            )}
+
+            {errors?.password?.type === 'invalid' && (
+              <InputErrorMessage>Senha incorreta.</InputErrorMessage>
             )}
           </LoginInputConteiner>
 
-          <CustomButtom
+          <CustomButton
             startIcon={<FiLogIn size={18} />}
             onClick={() => handleSubmit(handleSubmitPress)()}
           >
             Entrar
-          </CustomButtom>
+          </CustomButton>
         </LoginContent>
       </LoginContainer>
     </>
