@@ -17,6 +17,8 @@ export const CustomButtonContainer = styled.button`
     font-weight: 600;
     transition: all 0.5s ease;
     color: ${Colors.text.white};
+    margin-bottom: 10px;
+    align-items: center;
 
     &:hover{
         cursor: pointer;

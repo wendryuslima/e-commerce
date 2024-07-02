@@ -6,13 +6,11 @@ import {
   HeaderItems,
   HeaderTitle
 } from './header.styles'
+import { auth } from '../../config/firebase.config'
+import { signOut } from 'firebase/auth'
 
 const Header = () => {
   const navigate = useNavigate()
-
-  const exploreClick = () => {
-    navigate('/explore')
-  }
 
   const handleLoginClick = () => {
     navigate('/login')
@@ -30,9 +28,10 @@ const Header = () => {
       <HeaderTitle onClick={returnClick}>CLUB CLOTHING</HeaderTitle>
 
       <HeaderItems>
-        <HeaderItem onClick={exploreClick}>Explorar</HeaderItem>
+        <HeaderItem>Explorar</HeaderItem>
         <HeaderItem onClick={handleLoginClick}>Login</HeaderItem>
         <HeaderItem onClick={signUp}>Criar Conta</HeaderItem>
+        <HeaderItem onClick={() => signOut(auth)}>Sair</HeaderItem>
         <HeaderItem>
           {' '}
           <BsCart3 size={25} />
