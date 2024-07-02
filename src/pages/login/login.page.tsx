@@ -8,7 +8,12 @@ import CustomButton from '../../components/custom-button/custom-button.component
 import CustomInput from '../../components/custom-input/custom-input.component'
 
 import InputErrorMessage from '../../components/input-error-message/input-error-message.component'
-import { auth } from '../../config/firebase.config'
+import {
+  auth,
+  db,
+  faceProvider,
+  googleProvider
+} from '../../config/firebase.config'
 
 // Styles
 import {
@@ -22,9 +27,13 @@ import Header from '../../components/header/header.components'
 import {
   AuthError,
   AuthErrorCodes,
-  signInWithEmailAndPassword
+  signInWithEmailAndPassword,
+  signInWithPopup
 } from 'firebase/auth'
 import { error } from 'console'
+import { addDoc, collection, getDocs, query, where } from 'firebase/firestore'
+import { FacebookAuthProvider } from 'firebase/auth'
+import { FaFacebook } from 'react-icons/fa'
 
 interface LoginForm {
   email: string
@@ -46,18 +55,49 @@ const LoginPage = () => {
         data.email,
         data.password
       )
-
-      console.log({ userCredentials })
     } catch (error) {
       const _error = error as AuthError
 
       if (_error.code === AuthErrorCodes.INVALID_PASSWORD) {
         return setError('password', { type: 'invalid' })
       }
+    }
+  }
 
-      if (_error.code === AuthErrorCodes.USER_DELETED) {
-        return setError('email', { type: 'notFound' })
+  const handleSignWithFacebook = async () => {
+    try {
+      const userCredentials = await signInWithPopup(auth, faceProvider)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleSignWithGoogle = async () => {
+    try {
+      const userCredentials = await signInWithPopup(auth, googleProvider)
+
+      const querySnapshot = await getDocs(
+        query(
+          collection(db, 'users'),
+          where('id', '==', userCredentials.user.uid)
+        )
+      )
+
+      const user = querySnapshot.docs[0]?.data()
+
+      if (!user) {
+        const firtsName = userCredentials.user.displayName?.split(' ')[0]
+        const lastName = userCredentials.user.displayName?.split(' ')[1]
+        await addDoc(collection(db, 'user'), {
+          id: userCredentials.user.uid,
+          email: userCredentials.user.uid,
+          firtsName,
+          lastName,
+          provider: 'google'
+        })
       }
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -69,8 +109,18 @@ const LoginPage = () => {
         <LoginContent>
           <LoginHeadline>Entre com a sua conta</LoginHeadline>
 
-          <CustomButton startIcon={<BsGoogle size={18} />}>
+          <CustomButton
+            startIcon={<BsGoogle size={18} />}
+            onClick={handleSignWithGoogle}
+          >
             Entrar com o Google
+          </CustomButton>
+
+          <CustomButton
+            startIcon={<FaFacebook size={18} />}
+            onClick={handleSignWithFacebook}
+          >
+            Entrar com o Facebook
           </CustomButton>
 
           <LoginSubtitle>ou entre com o seu e-mail</LoginSubtitle>
@@ -92,7 +142,9 @@ const LoginPage = () => {
               <InputErrorMessage>O e-mail é obrigatório.</InputErrorMessage>
             )}
             {errors?.email?.type === 'notFound' && (
-              <InputErrorMessage>O e-mail não foi encontrado.</InputErrorMessage>
+              <InputErrorMessage>
+                O e-mail não foi encontrado.
+              </InputErrorMessage>
             )}
 
             {errors?.email?.type === 'validate' && (

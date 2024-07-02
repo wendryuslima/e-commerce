@@ -56,13 +56,14 @@ const SignUpPage = () => {
         id: userCredencials.user.uid,
         firstName: data.firstName,
         lastName: data.lastName,
-        email: userCredencials.user.email
+        email: userCredencials.user.email,
+        provider : 'firebase'
       })
     } catch (error) {
       const _error = error as AuthError
 
       if (_error.code === AuthErrorCodes.EMAIL_EXISTS) {
-        return setError('email', { type: 'alreadInUse' })
+        setError('password', { type: 'alreadInUse' })
       }
     }
   }
