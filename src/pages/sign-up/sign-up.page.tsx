@@ -24,6 +24,9 @@ import {
 
 // Utilities
 import { auth, db } from '../../config/firebase.config'
+import { useContext, useEffect } from 'react'
+import { UserContext } from '../../contexts/user.context'
+import { useNavigate } from 'react-router-dom'
 
 interface SignUpForm {
   firstName: string
@@ -32,6 +35,14 @@ interface SignUpForm {
   password: string
   passwordConfirmation: string
 }
+
+const { isAuthenticated } = useContext(UserContext)
+
+if (isAuthenticated) {
+  const navigate = useNavigate()
+  navigate('/')
+}
+useEffect(() => {}, [isAuthenticated])
 
 const SignUpPage = () => {
   const {
@@ -57,7 +68,7 @@ const SignUpPage = () => {
         firstName: data.firstName,
         lastName: data.lastName,
         email: userCredencials.user.email,
-        provider : 'firebase'
+        provider: 'firebase'
       })
     } catch (error) {
       const _error = error as AuthError
