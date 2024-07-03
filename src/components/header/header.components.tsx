@@ -8,6 +8,8 @@ import {
 } from './header.styles'
 import { auth } from '../../config/firebase.config'
 import { signOut } from 'firebase/auth'
+import { useContext } from 'react'
+import { UserContext } from '../../contexts/user.context'
 
 const Header = () => {
   const navigate = useNavigate()
@@ -23,15 +25,26 @@ const Header = () => {
   const returnClick = () => {
     navigate('/return')
   }
+
+  const { isAuthenticated } = useContext(UserContext)
+
   return (
     <HeaderContainer>
       <HeaderTitle onClick={returnClick}>CLUB CLOTHING</HeaderTitle>
 
       <HeaderItems>
         <HeaderItem>Explorar</HeaderItem>
-        <HeaderItem onClick={handleLoginClick}>Login</HeaderItem>
-        <HeaderItem onClick={signUp}>Criar Conta</HeaderItem>
-        <HeaderItem onClick={() => signOut(auth)}>Sair</HeaderItem>
+        {!isAuthenticated && (
+          <>
+            <HeaderItem onClick={handleLoginClick}>Login</HeaderItem>
+            <HeaderItem onClick={signUp}>Criar Conta</HeaderItem>
+          </>
+        )}
+        {isAuthenticated && (
+          <>
+            <HeaderItem onClick={() => signOut(auth)}>Sair</HeaderItem>
+          </>
+        )}
         <HeaderItem>
           {' '}
           <BsCart3 size={25} />
