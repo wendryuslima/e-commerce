@@ -8,7 +8,7 @@ import {
 } from 'firebase/auth'
 import { addDoc, collection } from 'firebase/firestore'
 import { useNavigate } from 'react-router-dom'
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 // Components
 import CustomButton from '../../components/custom-button/custom-button.component'
@@ -27,6 +27,7 @@ import {
 // Utilities
 import { auth, db } from '../../config/firebase.config'
 import { UserContext } from '../../contexts/user.context'
+import Loading from '../../components/loading/loading.component'
 
 interface SignUpForm {
   firstName: string
@@ -49,6 +50,8 @@ const SignUpPage = () => {
 
   const { isAuthenticated } = useContext(UserContext)
 
+  const [isLoading, setLoading] = useState(false)
+
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -59,6 +62,7 @@ const SignUpPage = () => {
 
   const handleSubmitPress = async (data: SignUpForm) => {
     try {
+      setLoading(true)
       const userCredentials = await createUserWithEmailAndPassword(
         auth,
         data.email,
@@ -78,13 +82,15 @@ const SignUpPage = () => {
       if (_error.code === AuthErrorCodes.EMAIL_EXISTS) {
         return setError('email', { type: 'alreadyInUse' })
       }
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <>
       <Header />
-
+      {isLoading && <Loading />}
       <SignUpContainer>
         <SignUpContent>
           <SignUpHeadline>Crie sua conta</SignUpHeadline>
