@@ -9,7 +9,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup
 } from 'firebase/auth'
-import { useEffect, useContext } from 'react'
+import { useEffect, useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 // Components
@@ -30,6 +30,7 @@ import {
 // Utilities
 import { auth, db, googleProvider } from '../../config/firebase.config'
 import { UserContext } from '../../contexts/user.context'
+import Loading from '../../components/loading/loading.component'
 
 interface LoginForm {
   email: string
@@ -44,6 +45,8 @@ const LoginPage = () => {
     formState: { errors }
   } = useForm<LoginForm>()
 
+  const [isLoading, setLoading] = useState(false)
+
   const { isAuthenticated } = useContext(UserContext)
 
   const navigate = useNavigate()
@@ -56,6 +59,7 @@ const LoginPage = () => {
 
   const handleSubmitPress = async (data: LoginForm) => {
     try {
+      setLoading(true)
       const userCredentials = await signInWithEmailAndPassword(
         auth,
         data.email,
@@ -73,11 +77,14 @@ const LoginPage = () => {
       if (_error.code === AuthErrorCodes.USER_DELETED) {
         return setError('email', { type: 'notFound' })
       }
+    } finally {
+      setLoading(false)
     }
   }
 
   const handleSignInWithGooglePress = async () => {
     try {
+      setLoading(true)
       const userCredentials = await signInWithPopup(auth, googleProvider)
 
       const querySnapshot = await getDocs(
@@ -103,12 +110,16 @@ const LoginPage = () => {
       }
     } catch (error) {
       console.log(error)
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <>
       <Header />
+
+      {isLoading && <Loading />}
 
       <LoginContainer>
         <LoginContent>
