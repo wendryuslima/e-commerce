@@ -1,4 +1,4 @@
-import { FunctionComponent, useState, useContext } from 'react'
+import { FunctionComponent, useState, useContext, useEffect } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import HomePage from './pages/home/home.page'
@@ -12,29 +12,43 @@ import { collection, getDocs, query, where } from 'firebase/firestore'
 
 const App: FunctionComponent = () => {
   const { isAuthenticated, loginUser, logoutUser } = useContext(UserContext)
+  const [isInitializing, setInitializing] = useState(true) // Corrigido setInitializang para setInitializing
 
-  onAuthStateChanged(auth, async (user) => {
-    const isSignOut = isAuthenticated && !user
-    if (isSignOut) {
-      return logoutUser()
-    }
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      const isSigningOut = isAuthenticated && !user
 
-    const isSignIn = isAuthenticated && user
-    if (isSignIn) {
-      const querySnaptshot = await getDocs(
-        query(collection(db, 'users'), where('id', '==', user.uid))
-      )
+      if (isSigningOut) {
+        logoutUser()
+        setInitializing(false)
+        return
+      }
 
-      const userFromFirestore = querySnaptshot.docs[0]?.data()
-      return loginUser(userFromFirestore as any)
-    }
-  })
+      const isSignIn = !isAuthenticated && user
+      if (isSignIn) {
+        const querySnapshot = await getDocs(
+          query(collection(db, 'users'), where('id', '==', user.uid))
+        )
+
+        const userFromFirestore = querySnapshot.docs[0]?.data()
+        loginUser(userFromFirestore as any)
+
+        setInitializing(false)
+        return
+      }
+
+      setInitializing(false)
+    })
+
+    return () => unsubscribe()
+  }, [isAuthenticated, loginUser, logoutUser])
+
+  if (isInitializing) return null
   return (
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<HomePage />} />
         <Route path='/login' element={<LoginPage />} />
-        <Route path='/return' element={<ReturnPage />} />
         <Route path='/sign' element={<SignUp />} />
       </Routes>
     </BrowserRouter>
