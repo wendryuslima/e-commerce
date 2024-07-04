@@ -2,41 +2,34 @@ import { BsGoogle } from 'react-icons/bs'
 import { FiLogIn } from 'react-icons/fi'
 import { useForm } from 'react-hook-form'
 import validator from 'validator'
-
-// Components
-import CustomButton from '../../components/custom-button/custom-button.component'
-import CustomInput from '../../components/custom-input/custom-input.component'
-
-import InputErrorMessage from '../../components/input-error-message/input-error-message.component'
-import {
-  auth,
-  db,
-  faceProvider,
-  googleProvider
-} from '../../config/firebase.config'
-
-// Styles
-import {
-  LoginContainer,
-  LoginContent,
-  LoginHeadline,
-  LoginInputConteiner,
-  LoginSubtitle
-} from './login.style'
-import Header from '../../components/header/header.components'
+import { addDoc, collection, getDocs, query, where } from 'firebase/firestore'
 import {
   AuthError,
   AuthErrorCodes,
   signInWithEmailAndPassword,
   signInWithPopup
 } from 'firebase/auth'
-import { error } from 'console'
-import { addDoc, collection, getDocs, query, where } from 'firebase/firestore'
-import { FacebookAuthProvider } from 'firebase/auth'
-import { FaFacebook } from 'react-icons/fa'
 import { useEffect, useContext } from 'react'
-import { UserContext } from '../../contexts/user.context'
 import { useNavigate } from 'react-router-dom'
+
+// Components
+import CustomButton from '../../components/custom-button/custom-button.component'
+import CustomInput from '../../components/custom-input/custom-input.component'
+import Header from '../../components/header/header.components'
+import InputErrorMessage from '../../components/input-error-message/input-error-message.component'
+
+// Styles
+import {
+  LoginContainer,
+  LoginContent,
+  LoginHeadline,
+  LoginInputContainer,
+  LoginSubtitle
+} from './login.style'
+
+// Utilities
+import { auth, db, googleProvider } from '../../config/firebase.config'
+import { UserContext } from '../../contexts/user.context'
 
 interface LoginForm {
   email: string
@@ -53,13 +46,13 @@ const LoginPage = () => {
 
   const { isAuthenticated } = useContext(UserContext)
 
+  const navigate = useNavigate()
+
   useEffect(() => {
-    if(isAuthenticated){
-      const navigate = useNavigate()
+    if (isAuthenticated) {
       navigate('/')
     }
-  }
-  , [isAuthenticated])
+  }, [isAuthenticated])
 
   const handleSubmitPress = async (data: LoginForm) => {
     try {
@@ -68,24 +61,22 @@ const LoginPage = () => {
         data.email,
         data.password
       )
+
+      console.log({ userCredentials })
     } catch (error) {
       const _error = error as AuthError
 
       if (_error.code === AuthErrorCodes.INVALID_PASSWORD) {
-        return setError('password', { type: 'invalid' })
+        return setError('password', { type: 'mismatch' })
+      }
+
+      if (_error.code === AuthErrorCodes.USER_DELETED) {
+        return setError('email', { type: 'notFound' })
       }
     }
   }
 
-  const handleSignWithFacebook = async () => {
-    try {
-      const userCredentials = await signInWithPopup(auth, faceProvider)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const handleSignWithGoogle = async () => {
+  const handleSignInWithGooglePress = async () => {
     try {
       const userCredentials = await signInWithPopup(auth, googleProvider)
 
@@ -99,12 +90,13 @@ const LoginPage = () => {
       const user = querySnapshot.docs[0]?.data()
 
       if (!user) {
-        const firtsName = userCredentials.user.displayName?.split(' ')[0]
+        const firstName = userCredentials.user.displayName?.split(' ')[0]
         const lastName = userCredentials.user.displayName?.split(' ')[1]
-        await addDoc(collection(db, 'user'), {
+
+        await addDoc(collection(db, 'users'), {
           id: userCredentials.user.uid,
-          email: userCredentials.user.uid,
-          firtsName,
+          email: userCredentials.user.email,
+          firstName,
           lastName,
           provider: 'google'
         })
@@ -124,21 +116,14 @@ const LoginPage = () => {
 
           <CustomButton
             startIcon={<BsGoogle size={18} />}
-            onClick={handleSignWithGoogle}
+            onClick={handleSignInWithGooglePress}
           >
             Entrar com o Google
           </CustomButton>
 
-          <CustomButton
-            startIcon={<FaFacebook size={18} />}
-            onClick={handleSignWithFacebook}
-          >
-            Entrar com o Facebook
-          </CustomButton>
-
           <LoginSubtitle>ou entre com o seu e-mail</LoginSubtitle>
 
-          <LoginInputConteiner>
+          <LoginInputContainer>
             <p>E-mail</p>
             <CustomInput
               hasError={!!errors?.email}
@@ -154,6 +139,7 @@ const LoginPage = () => {
             {errors?.email?.type === 'required' && (
               <InputErrorMessage>O e-mail é obrigatório.</InputErrorMessage>
             )}
+
             {errors?.email?.type === 'notFound' && (
               <InputErrorMessage>
                 O e-mail não foi encontrado.
@@ -165,9 +151,9 @@ const LoginPage = () => {
                 Por favor, insira um e-mail válido.
               </InputErrorMessage>
             )}
-          </LoginInputConteiner>
+          </LoginInputContainer>
 
-          <LoginInputConteiner>
+          <LoginInputContainer>
             <p>Senha</p>
             <CustomInput
               hasError={!!errors?.password}
@@ -180,10 +166,10 @@ const LoginPage = () => {
               <InputErrorMessage>A senha é obrigatória.</InputErrorMessage>
             )}
 
-            {errors?.password?.type === 'invalid' && (
-              <InputErrorMessage>Senha incorreta.</InputErrorMessage>
+            {errors?.password?.type === 'mismatch' && (
+              <InputErrorMessage>A senha é inválida.</InputErrorMessage>
             )}
-          </LoginInputConteiner>
+          </LoginInputContainer>
 
           <CustomButton
             startIcon={<FiLogIn size={18} />}

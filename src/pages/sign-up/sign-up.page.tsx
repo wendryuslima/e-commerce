@@ -7,6 +7,8 @@ import {
   AuthErrorCodes
 } from 'firebase/auth'
 import { addDoc, collection } from 'firebase/firestore'
+import { useNavigate } from 'react-router-dom'
+import { useContext, useEffect } from 'react'
 
 // Components
 import CustomButton from '../../components/custom-button/custom-button.component'
@@ -24,9 +26,7 @@ import {
 
 // Utilities
 import { auth, db } from '../../config/firebase.config'
-import { useContext, useEffect } from 'react'
 import { UserContext } from '../../contexts/user.context'
-import { useNavigate } from 'react-router-dom'
 
 interface SignUpForm {
   firstName: string
@@ -35,14 +35,6 @@ interface SignUpForm {
   password: string
   passwordConfirmation: string
 }
-
-const { isAuthenticated } = useContext(UserContext)
-
-if (isAuthenticated) {
-  const navigate = useNavigate()
-  navigate('/')
-}
-useEffect(() => {}, [isAuthenticated])
 
 const SignUpPage = () => {
   const {
@@ -55,26 +47,36 @@ const SignUpPage = () => {
 
   const watchPassword = watch('password')
 
+  const { isAuthenticated } = useContext(UserContext)
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/')
+    }
+  }, [isAuthenticated])
+
   const handleSubmitPress = async (data: SignUpForm) => {
     try {
-      const userCredencials = await createUserWithEmailAndPassword(
+      const userCredentials = await createUserWithEmailAndPassword(
         auth,
         data.email,
         data.password
       )
 
       await addDoc(collection(db, 'users'), {
-        id: userCredencials.user.uid,
+        id: userCredentials.user.uid,
+        email: userCredentials.user.email,
         firstName: data.firstName,
         lastName: data.lastName,
-        email: userCredencials.user.email,
         provider: 'firebase'
       })
     } catch (error) {
       const _error = error as AuthError
 
       if (_error.code === AuthErrorCodes.EMAIL_EXISTS) {
-        setError('password', { type: 'alreadInUse' })
+        return setError('email', { type: 'alreadyInUse' })
       }
     }
   }
@@ -130,9 +132,9 @@ const SignUpPage = () => {
               <InputErrorMessage>O e-mail é obrigatório.</InputErrorMessage>
             )}
 
-            {errors?.email?.type === 'alreadInUse' && (
+            {errors?.email?.type === 'alreadyInUse' && (
               <InputErrorMessage>
-                Este e-mail ja está sendo usado.
+                Este e-mail já está sendo utilizado.
               </InputErrorMessage>
             )}
 
@@ -158,7 +160,7 @@ const SignUpPage = () => {
 
             {errors?.password?.type === 'minLength' && (
               <InputErrorMessage>
-                A senha deve conter no minímo 6 dígitos.
+                A senha precisa ter no mínimo 6 caracteres.
               </InputErrorMessage>
             )}
           </SignUpInputContainer>
@@ -183,9 +185,10 @@ const SignUpPage = () => {
                 A confirmação de senha é obrigatória.
               </InputErrorMessage>
             )}
+
             {errors?.passwordConfirmation?.type === 'minLength' && (
               <InputErrorMessage>
-                A senha deve conter no minímo 6 dígitos.
+                A confirmação de senha precisa ter no mínimo 6 caracteres.
               </InputErrorMessage>
             )}
 
