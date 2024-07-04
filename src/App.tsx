@@ -9,6 +9,8 @@ import { auth, db } from './config/firebase.config'
 import { onAuthStateChanged } from 'firebase/auth'
 import { UserContext } from './contexts/user.context'
 import { collection, getDocs, query, where } from 'firebase/firestore'
+import { userConverter } from './converters/firestore.converters'
+import Loading from './components/loading/loading.component'
 
 const App: FunctionComponent = () => {
   const { isAuthenticated, loginUser, logoutUser } = useContext(UserContext)
@@ -27,7 +29,10 @@ const App: FunctionComponent = () => {
       const isSignIn = !isAuthenticated && user
       if (isSignIn) {
         const querySnapshot = await getDocs(
-          query(collection(db, 'users'), where('id', '==', user.uid))
+          query(
+            collection(db, 'users').withConverter(userConverter),
+            where('id', '==', user.uid)
+          )
         )
 
         const userFromFirestore = querySnapshot.docs[0]?.data()
@@ -43,7 +48,7 @@ const App: FunctionComponent = () => {
     return () => unsubscribe()
   }, [isAuthenticated, loginUser, logoutUser])
 
-  if (isInitializing) return null
+  if (isInitializing) return <Loading />
   return (
     <BrowserRouter>
       <Routes>
