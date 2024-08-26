@@ -31,7 +31,7 @@ export const LoginSubtitle = styled.p`
   margin-bottom: 20px;
 `
 
-export const LoginInputConteiner = styled.div`
+export const LoginInputContainer = styled.div`
   width: 100%;
   margin-bottom: 20px;
   p:nth-child(1) {
