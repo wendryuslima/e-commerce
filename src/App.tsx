@@ -3,7 +3,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 import HomePage from './pages/home/home.page'
 import LoginPage from './pages/login/login.page'
-import ReturnPage from './pages/return/return.page'
 import SignUp from './pages/sign-up/sign-up.page'
 import { auth, db } from './config/firebase.config'
 import { onAuthStateChanged } from 'firebase/auth'
@@ -12,6 +11,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore'
 import { userConverter } from './converters/firestore.converters'
 import Loading from './components/loading/loading.component'
 import ExplorePage from './pages/explore/explore.page'
+import CategoryDetailsPage from './pages/category-details/category-details-component'
 
 const App: FunctionComponent = () => {
   const { isAuthenticated, loginUser, logoutUser } = useContext(UserContext)
@@ -54,6 +54,8 @@ const App: FunctionComponent = () => {
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<HomePage />} />
+        <Route path='/' element={<CategoryDetailsPage />} />
+        <Route path='/category/:id' element={<CategoryDetailsPage />} />
         <Route path='/login' element={<LoginPage />} />
         <Route path='/sign' element={<SignUp />} />
         <Route path='/explore' element={<ExplorePage />} />
