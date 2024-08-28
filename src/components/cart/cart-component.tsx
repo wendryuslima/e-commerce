@@ -4,28 +4,41 @@ import {
   CartTitle,
   CartTotal,
   CartEscapeArea,
-  CartContent
+  CartContent,
+  EmptyCart
 } from './cart-styles'
 import CustomButtom from '../custom-button/custom-button.component'
 import { BsCartCheck } from 'react-icons/bs'
 import { CartContext } from '../../contexts/cart-context'
 import CartItem from '../cart-item/cart-item-component'
 const Cart: FunctionComponent = () => {
-  const { isVisible, products, toggleCart, productsTotalPrice } =
+  const { isVisible, products, productsCount, productsTotalPrice, toggleCart } =
     useContext(CartContext)
+
+  if (!products) {
+    return <h1>Seu carrinho está vazio</h1>
+  }
   return (
     <CartContainer isVisible={isVisible}>
       <CartEscapeArea onClick={toggleCart} />
+
       <CartContent>
-        <CartTitle>Seu carrinho</CartTitle>
+        {productsCount === 0 && (
+          <EmptyCart>Seu carrinho está vazio</EmptyCart>
+        )}
+        {productsCount > 0 && <CartTitle>Seu carrinho</CartTitle>}
         {/* {Produtos} */}
         {products.map((product) => (
           <CartItem key={product.id} product={product} />
         ))}
-        <CartTotal>Total: R${productsTotalPrice}</CartTotal>
-        <CustomButtom startIcon={<BsCartCheck />}>
-          Ir para o checkout
-        </CustomButtom>
+        {productsCount > 0 && (
+          <CartTotal>Total: R${productsTotalPrice}</CartTotal>
+        )}
+        {productsCount > 0 && (
+          <CustomButtom startIcon={<BsCartCheck />}>
+            Ir para o checkout
+          </CustomButtom>
+        )}
       </CartContent>
     </CartContainer>
   )

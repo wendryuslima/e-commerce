@@ -46,4 +46,13 @@ export const CartTotal = styled.p`
   font-weight: 600;
   font-size: 1.125rem;
   margin-bottom: 15px;
+  color: black;
+`
+
+export const EmptyCart = styled.p`
+  font-size: 1.325rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  align-items: center;
+  text-align: center;
 `
