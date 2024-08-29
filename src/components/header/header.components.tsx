@@ -1,10 +1,11 @@
 import { signOut } from 'firebase/auth'
-import { useContext, useEffect } from 'react'
+import { useContext } from 'react'
 import { BsCart3 } from 'react-icons/bs'
 import { useNavigate } from 'react-router-dom'
 
 // Utilities
 import { auth } from '../../config/firebase.config'
+
 import { UserContext } from '../../contexts/user.context'
 
 // Styles
@@ -14,27 +15,16 @@ import {
   HeaderItem,
   HeaderTitle
 } from './header.styles'
-
 import { CartContext } from '../../contexts/cart-context'
 
 const Header = () => {
-  const { isAuthenticated } = useContext(UserContext)
-  const { toggleCart, productsCount } = useContext(CartContext)
-
   const navigate = useNavigate()
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/')
-    }
-  })
+  const { isAuthenticated } = useContext(UserContext)
+  const { productsCount, toggleCart } = useContext(CartContext)
 
   const handleLogoClick = () => {
     navigate('/')
-  }
-
-  const handleExploreClick = () => {
-    navigate('/explore')
   }
 
   const handleLoginClick = () => {
@@ -42,7 +32,11 @@ const Header = () => {
   }
 
   const handleSignUpClick = () => {
-    navigate('/sign')
+    navigate('/sign-up')
+  }
+
+  const handleExploreClick = () => {
+    navigate('/explore')
   }
 
   return (

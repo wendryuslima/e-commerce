@@ -31,7 +31,8 @@ const UserContextProvider: FunctionComponent = ({ children }) => {
 
   return (
     <UserContext.Provider
-      value={{ currentUser, isAuthenticated, loginUser, logoutUser }}>
+      value={{ currentUser, isAuthenticated, loginUser, logoutUser }}
+    >
       {children}
     </UserContext.Provider>
   )

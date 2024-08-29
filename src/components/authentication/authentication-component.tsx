@@ -4,27 +4,29 @@ import { useNavigate } from 'react-router-dom'
 import Header from '../header/header.components'
 import Loading from '../loading/loading.component'
 
-const Authentication: FunctionComponent = ({ children }) => {
+const AuthenticationGuard: FunctionComponent = ({ children }) => {
   const { isAuthenticated } = useContext(UserContext)
 
   const navigate = useNavigate()
+
   useEffect(() => {
-    setTimeout(() => {
-      if (!isAuthenticated) {
+    if (!isAuthenticated) {
+      setTimeout(() => {
         navigate('/login')
-      }
-    }, 3000)
+      }, 3000)
+    }
   }, [isAuthenticated])
 
   if (!isAuthenticated) {
     return (
       <>
         <Header />
-        <Loading message='Para acessar essa página, é necessário estar logado. Você será redirecionado para página de login em instantes...' />
+        <Loading message='Você precisa estar logado para acessar esta página. Você será redirecionado para a página de login em instantes...' />
       </>
     )
   }
+
   return <>{children}</>
 }
 
-export default Authentication
+export default AuthenticationGuard
