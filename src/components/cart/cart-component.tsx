@@ -11,9 +11,17 @@ import CustomButtom from '../custom-button/custom-button.component'
 import { BsCartCheck } from 'react-icons/bs'
 import { CartContext } from '../../contexts/cart-context'
 import CartItem from '../cart-item/cart-item-component'
+import { useNavigate } from 'react-router-dom'
 const Cart: FunctionComponent = () => {
   const { isVisible, products, productsCount, productsTotalPrice, toggleCart } =
     useContext(CartContext)
+
+  const navigate = useNavigate()
+
+  const handleCheckoutClick = () => {
+    navigate('/checkout')
+    toggleCart()
+  }
 
   if (!products) {
     return <h1>Seu carrinho está vazio</h1>
@@ -23,9 +31,7 @@ const Cart: FunctionComponent = () => {
       <CartEscapeArea onClick={toggleCart} />
 
       <CartContent>
-        {productsCount === 0 && (
-          <EmptyCart>Seu carrinho está vazio</EmptyCart>
-        )}
+        {productsCount === 0 && <EmptyCart>Seu carrinho está vazioa</EmptyCart>}
         {productsCount > 0 && <CartTitle>Seu carrinho</CartTitle>}
         {/* {Produtos} */}
         {products.map((product) => (
@@ -35,7 +41,10 @@ const Cart: FunctionComponent = () => {
           <CartTotal>Total: R${productsTotalPrice}</CartTotal>
         )}
         {productsCount > 0 && (
-          <CustomButtom startIcon={<BsCartCheck />}>
+          <CustomButtom
+            onClick={handleCheckoutClick}
+            startIcon={<BsCartCheck />}
+          >
             Ir para o checkout
           </CustomButtom>
         )}
