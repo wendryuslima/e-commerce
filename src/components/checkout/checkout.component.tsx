@@ -20,7 +20,6 @@ const Checkout: FunctionComponent = () => {
     try {
       setIsLoading(true)
 
-      // Obtém a URL base da API a partir da variável de ambiente
       const apiUrl = process.env.REACT_APP_API_URL
       if (!apiUrl) {
         throw new Error(
@@ -28,16 +27,14 @@ const Checkout: FunctionComponent = () => {
         )
       }
 
-      // Construa a URL completa para o endpoint de checkout
       const { data } = await axios.post(`${apiUrl}/create-checkout-session`, {
         products
       })
 
-      // Redirecione o usuário para a URL de checkout retornada
       window.location.href = data.url
     } catch (error) {
       console.error('Erro na requisição:', error)
-      // Exiba uma mensagem de erro para o usuário, se necessário
+
       alert(
         'Houve um problema ao finalizar a compra. Por favor, tente novamente.'
       )

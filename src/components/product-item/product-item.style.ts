@@ -7,12 +7,21 @@ interface ProductImageProps {
 export const ProductContainer = styled.div`
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 768px) {
+    display: grid;
+    grid-column: 3;
+    align-items: center;
+    text-align: center;
+    margin: 20px;
+  }
 `
 
 export const ProductInfo = styled.div`
   display: flex;
   justify-content: space-between;
   margin-top: 5px;
+  text-align: center;
 
   p {
     font-size: 1rem;

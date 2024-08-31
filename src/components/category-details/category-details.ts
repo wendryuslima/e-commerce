@@ -13,6 +13,10 @@ export const CategoryTitle = styled.div`
     font-size: 21px;
     font-weight: 500;
   }
+
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
 `
 
 export const ProductsContainer = styled.div`
