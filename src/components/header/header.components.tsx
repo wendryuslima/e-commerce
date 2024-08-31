@@ -115,15 +115,15 @@ const Header: React.FC = () => {
                   Login
                 </span>
 
-                <CustomButtom
-                  startIcon={<CiLogin size={20} />}
-                  onClick={handleSignUpClick}
-                >
-                  Criar Conta
-                </CustomButtom>
+                <span onClick={handleSignUpClick}>Criar Conta</span>
               </>
             )}
             {isAuthenticated && <span onClick={() => signOut(auth)}>Sair</span>}
+
+            <HeaderItem onClick={toggleCart}>
+              <BsCart3 size={25} />
+              <p style={{ marginLeft: 5 }}>{productsCount}</p>
+            </HeaderItem>
           </MenuList>
         </MenuContent>
       </Menu>
