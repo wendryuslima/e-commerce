@@ -17,6 +17,20 @@ import CheckOutPage from './pages/checkout/checkout.page'
 import Authentication from './components/authentication/authentication-component'
 import PaymentConfirmationPage from './pages/payment-confirmation/payment-confirmation.component'
 
+import express from 'express'
+const app = express()
+
+const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = process.env
+
+// Utilize as variáveis conforme necessário
+console.log('Google Client ID:', GOOGLE_CLIENT_ID)
+console.log('Google Client Secret:', GOOGLE_CLIENT_SECRET)
+
+// Configuração do servidor e rotas...
+app.listen(3000, () => {
+  console.log('Server is running on port 3000')
+})
+
 const App: FunctionComponent = () => {
   const { isAuthenticated, loginUser, logoutUser } = useContext(UserContext)
   const [isInitializing, setInitializing] = useState(true) // Corrigido setInitializang para setInitializing
